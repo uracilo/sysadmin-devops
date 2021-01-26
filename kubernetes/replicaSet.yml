@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: my-replicaSet
+  labels:
+    type: front-end
+spec:
+  template: 
+    metadata:
+      name: my-app-pod
+      labels:
+        app: my-app
+        type: front-end
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+replicas: 3
+selector: 
+  matchLabels: 
+    type: front-end
+# kubectl replace -f replicaSet.yml 
+# kubectl scale --replicas=6 -f replicaSet.yml
+# kubectl scale --replica=6 replicaset my-replicaSet
+#
+#
+#
+#i
+
+--- 
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: replicaset-1spec:  replicas: 2
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      name: nginx
+      labels:
+        tier: frontend
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: replicaset-2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+

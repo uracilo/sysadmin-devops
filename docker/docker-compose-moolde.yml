@@ -1,0 +1,56 @@
+version: '3'
+services:
+  moodle_db:
+    image: mysql:5.7
+    container_name: moodle_db
+    ports:
+      - "3308:3306"
+    volumes:
+      - /mysql_data/database/moodle/data:/var/lib/mysql
+      - /mysql_data/database/moodle/initdb.d:/docker-entrypoint-initdb.d
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password # any random string will do
+      MYSQL_DATABASE: moodle # the name of your mysql database
+      MYSQL_USER: user # the name of the database user
+      MYSQL_PASSWORD: password # the password of the mysql user
+    networks:
+      moodle:
+        ipv4_address: 172.24.0.2
+  moodle_web:
+    depends_on:
+      - moodle_db
+    image: moodle:php7.4 # we're using the image with php7.4
+    container_name: moodle
+    ports:
+      - "8080:80"
+    restart: always
+    links:
+      - moodle_db:mysql
+    volumes:
+      - /site_data/web/moodle/src:/var/www/html
+    networks:
+      moodle:
+        ipv4_address: 172.24.0.4
+  proxy_ssl:
+    image: nginx:1.19.2-alpine
+    container_name: proxy_ssl
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt/live/dand.info/fullchain.pem:/etc/letsencrypt/live/dand.info/fullchain.pem
+      - /etc/letsencrypt/live/dand.info/privkey.pem:/etc/letsencrypt/live/dand.info/privkey.pem
+    restart: always
+    networks:
+      - moodle
+
+networks:
+  moodle:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.24.0.0/24
+

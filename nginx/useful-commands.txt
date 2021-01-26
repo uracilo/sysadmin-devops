@@ -1,0 +1,7 @@
+sudo fuser -k 80/tcp
+
+sudo fuser -k 443/tcp
+
+Then execute
+
+sudo service nginx restart

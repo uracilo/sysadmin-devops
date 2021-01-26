@@ -1,0 +1,36 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Instalar MariaDB
+      apt: 
+        name: "{{item}}"
+        state: present  
+        update_cache: yes
+      with_items:
+            - mariadb-server
+            - python-mysqldb
+
+    - name: Asegurarse de que el servidor de bases de datos esta corriendo
+      service:
+        name: mariadb
+        state: started  
+
+    - name: Crear la base de datos joomla_db
+      mysql_db:
+        name: joomla_db
+        state: present   
+
+    - name: Crear el usuario joomla
+      mysql_user:
+        name: joomla
+        password: password
+        priv: '*.*:ALL'
+        host: 192.168.33.10
+        state: present
+
+    - name: Inicializar base de datos (joomla_db)
+      mysql_db:
+        name: joomla_db
+        state: import
+        target: /tmp/db-export/export.sql

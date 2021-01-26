@@ -1,0 +1,40 @@
+version: '2'
+services:
+  mariadb:
+    image: 'mariadb:10'
+    container_name: db
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: moodle
+      MYSQL_USER: moodle
+      MYSQL_PASSWORD: moodlePassword
+    volumes:
+      - $HOME/volumes/mysql:/var/lib/mysql
+
+  moodle:
+    image: 'bitnami/moodle:3'
+    container_name: moodle
+    environment:
+      MOODLE_USERNAME: programster
+      MOODLE_PASSWORD: thisIsMyMoodleLoginPassword
+      MOODLE_EMAIL: admin@programster.org
+      MARIADB_HOST: db
+      MARIADB_PORT_NUMBER: 3306
+      MOODLE_DATABASE_USER: moodle
+      MOODLE_DATABASE_NAME: moodle
+      MOODLE_DATABASE_PASSWORD: moodlePassword
+      ALLOW_EMPTY_PASSWORD: "no"
+    ports:
+      - '80:80'
+      - '443:443'
+    #mem_limit: 1g
+    volumes:
+      - $HOME/volumes/moodle:/bitnami'
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:
+    driver: local
+  moodle_data:
+    driver: local

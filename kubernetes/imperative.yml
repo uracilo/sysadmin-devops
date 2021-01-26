@@ -1,0 +1,22 @@
+#kubectl run --image=nginx nginx
+#kubectl create deployment --image=nginx nginx 
+#kubectl expose deployment nginx --port 80 
+#kubectl edit deployment nginx 
+#kubectl scale deployment nginx --replicas=5
+#kubectl set image deployment nginx nginx=nginx:1.18
+#kubectl get pods --show-labels
+#kubectl get pods -l env=dev --no-headers | wc -l
+#kubectl get pod webapp -o yaml > my-new-pod.yaml
+# vi my-new-pod.yaml
+# kubectl delete pod webapp
+# kubectl create -f my-new-pod.yaml
+# kubectl taint node node01 spray:mortein:NoSchedule
+# kubectl taint node node01 spray:mortein:NoSchedule-
+# kubectl top node
+# kubectl top pod 
+# kubectl logs -f pod
+# kubectl logs -f pod container
+# kubectl rollout status deployment/myapp-deployment
+# kubectl rolltout history deployment/myapp-deployment
+# kubectl rolltout undo deployment/myapp-deployment
+

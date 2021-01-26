@@ -1,0 +1,1 @@
+head -n5 file | awk -F ',' '{print $1 "," $4 "," $7}'

@@ -1,0 +1,30 @@
+# Ibaktor image for moodle
+FROM gotechnies/php-5.6-alpine
+
+RUN apk update && \
+    apk add mysql-client 
+
+WORKDIR /etc/php5
+COPY ./php.ini . 
+
+
+RUN sed -i 's#/var/www/html#/var/www/html/lms#g' /etc/apache2/httpd.conf
+
+RUN sed -i 's#ServerName www.example.com:80#ServerName localhost:80#' /etc/apache2/httpd.conf
+
+RUN sed -i 's#\#ServerName www.example.com:80#ServerName localhost:80#' /etc/apache2/httpd.conf
+
+RUN sed -i 's#\# Alias /webpath /full/filesystem/path#Alias /lms /var/www/html/lms#' /etc/apache2/httpd.conf
+
+RUN sed -i 's#ServerSignature On#ServerSignature Off#g' /etc/apache2/httpd.conf
+
+RUN mkdir -p /var/www/html/lms && \
+    mkdir -p /var/moodledata
+
+
+
+WORKDIR  /var/www/html/lms
+
+EXPOSE 80 
+EXPOSE 443
+CMD /usr/sbin/apachectl  -D   FOREGROUND

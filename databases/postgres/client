@@ -1,0 +1,94 @@
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get -y install postgresql
+
+#client
+apt-get install postgresql-12
+
+
+# connect 
+psql "dbname=dbhere host=hosthere user=userhere password=pwhere port=5432 sslmode=require"
+
+By default the timing of query results will not be available, but we can turn it on by using the following command.
+# \timing
+
+List tables in database
+
+# \d
+
+Describe a table
+
+# \d employees 
+
+
+List all tables in database along with some additional information
+
+# \d+
+
+
+Describe a table with additional information
+
+#\d+ users
+
+List all databases
+# \l
+
+
+List all databases with additional information
+# \l+
+
+List all schemas
+# \dn
+
+List all schemas with additional information
+# \dn+
+
+List all functions
+#\df
+
+
+List all functions with additional information
+#\df+
+
+
+Connect to another database
+#\c dbname
+
+Quit from postgres shell
+#\q 
+
+Text editor inside psql
+#\e
+
+
+Creating PostgreSQL users
+
+su - postgres
+
+createuser --interactive --pwprompt
+
+Creating PostgreSQL databases
+
+su - postgres
+
+createdb -O user dbname
+
+sudo -u postgres psql
+postgres=# create database mydb;
+postgres=# create user myuser with encrypted password 'mypass';
+postgres=# grant all privileges on database mydb to myuser;
+
+Giving the user a password
+$ sudo -u postgres psql
+psql=# alter user <username> with encrypted password '<password>';
+
+Granting privileges on database
+psql=# grant all privileges on database <dbname> to <username> ;
+
+
+
+
+
+
+

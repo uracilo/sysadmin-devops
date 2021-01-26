@@ -1,0 +1,9 @@
+# Metric beat es un recolector de logs que puedes ser ajustado para ser enviado a elasticsearch  o ser enviado directamente.
+
+# Instalación.
+# Puede ser en local donde corre la aplicación sistema o container, o se puede buscar la alternativa en contenedor.
+# se debe de editar sus archivo de configuración en el se encuentran los modulos que soporta.
+# Para revisar la configuración se aplica ./metricbeat -c metricbeat.yml 
+# Activar modulos , con ./metricbeat modules enable docker 
+
+# Packbeat

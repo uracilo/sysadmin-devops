@@ -1,0 +1,25 @@
+version: '3.7'
+services:
+  watcher:
+    container_name: watcher 
+    command: --label-enable --cleanup --interval 60     
+    image: containrrr/watchtower
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/davter/.docker/config.json:/config.json
+    environment:
+      - TZ=America/Mexico_City
+
+  nginx:
+    depends_on:
+      - watcher 
+    container_name: nginx_demo
+    image: registry.gitlab.com/davter29/pruebawindows:demo 
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    ports:
+      - "80:80"
+  
+

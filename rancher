@@ -1,0 +1,22 @@
+# run rancher 
+
+
+sudo docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher
+
+
+
+
+
+# create role 
+kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user [USER_ACCOUNT]
+
+
+#Run the kubectl command below on an existing Kubernetes cluster running a supported Kubernetes version to import it into Rancher:
+
+kubectl apply -f https://127.0.0.1/v3/import/wsxv42npprfpzb2r5rp4bp2nl2mlfdllc5zd8z9l7t6tbw75b8msl4.yaml
+
+#If you get an error about 'certificate signed by unknown authority' because your Rancher installation is running with an untrusted/self-signed SSL certificate, run the command below instead to bypass the certificate check:
+
+curl --insecure -sfL https://127.0.0.1/v3/import/wsxv42npprfpzb2r5rp4bp2nl2mlfdllc5zd8z9l7t6tbw75b8msl4.yaml | kubectl apply -f -
+
+

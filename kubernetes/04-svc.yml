@@ -1,0 +1,1228 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userapi
+      
+  template:
+    metadata:
+      labels:
+        app: userapi 
+        layer: business  
+    spec:
+      containers:
+      - name: userapi 
+        image: tuidhubprod.azurecr.io/userapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: "userapi"
+        env:
+        - name: MongoServiceGetUserLogin
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/getUserByLogin"
+        - name: MongoServiceGetUserByRegistrar
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/GetUserByRegistrar"
+        - name: MongoServiceGetUser
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/GetUser"
+        - name: MongoServiceGetUserByCellphone
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/GetUserByCellphone"
+        - name: MongoServiceGetUserCreate
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/create"
+        - name: MongoServiceUpdateUser
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/update"
+        - name: MongoServiceUpdateAllUser
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/updateUser"
+        - name: MongoServiceGetUserByCredentials
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/getUserByCredentials"
+        - name: MongoServiceGetUsersByPagination
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/getUsersByPagination"
+        - name: MongoServiceGetUserLnData
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/getUserLnData"
+        - name: MongoServiceDeleteUser
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/delete"
+        - name: MongoServiceInsertLnData
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/insertLnData"
+        - name: MongoServiceInserLnReason
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/inserLnReason"
+        - name: MongoServiceGetUserDocument
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/getUserDocument"
+        - name: MongoServiceInsertDocument
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/user/insertDocument"
+        - name: MongoServiceDeleteDocument
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/deleteDocument"
+        - name: MongoServiceInsertInsertLog
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/log"
+        - name: MongoServiceAddOcrData
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/mongoUser/addOcrData"
+        - name: MongoServiceGetDocumentTypes
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/mongoUser/getAll"
+        - name: MongoServiceGetUserLogin
+          value: "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/getUserByLogin"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+  
+
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: userapi
+spec:
+  ports:
+  - name: userport
+    port: 6379
+    targetPort: 80
+  selector:
+    app: userapi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobileendpoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobileendpoint
+  template:
+    metadata:
+      labels:
+        app: mobileendpoint
+        layer: entrypoint
+        
+    spec:
+      containers:
+      - name: mobileendpoint 
+        image: tuidhubprod.azurecr.io/mobileendpoint:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+        - name: UserServiceBaseAddress
+          value: "http://userapi.tuidprod.svc.cluster.local:6379/api/user"
+        - name: DocumentServiceBaseAddress  
+          value: "http://documentapi.tuidprod.svc.cluster.local:6379/api/document"
+        - name: UserAuthServiceBaseAddress   
+          value: "http://userauth.tuidprod.svc.cluster.local:6379/api/UserAuth"
+        - name: BlobApiServiceBaseAddress   
+          value: "http://blobapi.tuidprod.svc.cluster.local:6379/api/blob"
+        - name: "FingerIdentyfyById"
+          value: "http://fingerprintsapi.tuidprod.svc.cluster.local:6379/api/fingerprints/identifyBId"
+        - name : "AutIdApiServiceBaseAddress"
+          value : "http://authidapi.tuidprod.svc.cluster.local:6379/api/authidapi/analize"
+
+
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobileendpoint
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: mobileendpoint
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongoapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongoapi
+      
+  template:
+    metadata:
+      labels:
+        app: mongoapi
+        layer: core  
+    spec:
+      containers:
+      - name: mongoapi 
+        image: tuidhubprod.azurecr.io/mongoapi:PROD.V.1.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: mongoapi
+        env:
+        - name: MongoConnectionString
+          value: ""
+        - name: DatabaseName
+          value: "proddb"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongoapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: mongoapi
+
+
+
+    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: curpapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: curpapi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authidapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: authidapi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authidapi
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: authidapi
+      
+  template:
+    metadata:
+      labels:
+        app: authidapi 
+        layer: core  
+    spec:
+      containers:
+      - name: authidapi 
+        image: tuidhubprod.azurecr.io/authidapi:PROD.V.1.7
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: authidapi
+        env:
+        - name: IdAuthDb
+          value: "30;" 
+        - name: BACustomVisionQuickTest
+          value:  "http://cvisionapi.tuidprod.svc.cluster.local:6379/api/CV/quicktest"
+        - name: BAComputerVisionAnalize
+          value:  "http://cvisionapi.tuidprod.svc.cluster.local:6379/api/ocr/analize"
+        - name: BAComputerVisionOrc
+          value:  "http://cvisionapi.tuidprod.svc.cluster.local:6379/api/ocr"
+        - name: BAComputerVisionOcrRequest
+          value:  "http://cvisionapi.tuidprod.svc.cluster.local:6379/api/ocr/ocrRequest"
+        - name: BAComputerVisioncheckOrientation
+          value:  "http://cvisionapi.tuidprod.svc.cluster.local:6379/api/ocr/checkOrientation"
+        - name: BABlobServiceUpdloadImageToApi
+          value:  "http://blobapi.tuidprod.svc.cluster.local:6379/api/blob/updloadImageToApi"
+        - name: BACurp
+          value: "http://curpapi.tuidprod.svc.cluster.local:6379/api/curp"
+        - name: CustomVisionBaseAddress
+          value: "http://tuid.centralus.cloudapp.azure.com"
+        - name: ComputerVisionBaseAddress
+          value: "https://westcentralus.api.cognitive.microsoft.com"
+        - name: ComputerVisionKey
+          value: "047b975bc9f74418b79dea17329fbd4f"
+        - name: LocalSidesCVEndpoint
+          value: "http://tuid.centralus.cloudapp.azure.com/sideclass/image"
+        - name: LocalFocusCVEndpoint
+          value: "http://tuid.centralus.cloudapp.azure.com/focusclass/image"
+        - name: LocalGlareCVEndpoint
+          value: "http://tuid.centralus.cloudapp.azure.com/glareclass/image"
+        - name: LocalFrontTypeCVEndpoint
+          value: "http://tuid.centralus.cloudapp.azure.com/fronttypeclass/image"
+        - name: LocalBackTypeCVEndpoint
+          value: "http://tuid.centralus.cloudapp.azure.com/backtypeclass/image"
+        - name: LocalPatternsCVEndpoint
+          value: "http://tuid.centralus.cloudapp.azure.com/imgborderclass/image"
+        - name: LocalDocCVEndpoint
+          value: "http://tuid.centralus.cloudapp.azure.com/doctypeclass/image"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blobapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blobapi
+  template:
+    metadata:
+      labels:
+        app: blobapi 
+        layer: core
+        
+    spec:
+      containers:
+      - name: blobapi 
+        image: tuidhubprod.azurecr.io/blobapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: blobapi
+        env:
+        - name: BlobConnectionString
+          value: ""
+        - name: ContainerName
+          value: "data"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+        - name: tuidcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blobapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: blobapi
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvisionapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: cvisionapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvisionapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvisionapi
+      
+  template:
+    metadata:
+      labels:
+        app: cvisionapi 
+        layer: core
+        
+    spec:
+      containers:
+      - name: cvisionapi 
+        image: tuidhubprod.azurecr.io/computervisionapi:PROD.V.1.5
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: cvisionapi
+        env:
+        - name: ComputerVisionKey
+          value: "f9ea596e036742f2ac968156f6c593d8"
+        - name: "ComputerVisionBaseAddress"
+          value: "https://southcentralus.api.cognitive.microsoft.com/vision/v2.0/ocr"
+        - name: CustomVisionTrainingKey
+          value: "dd57285e29924e7895af39ebb345cd39"
+        - name: CustomVisionBaseAddress
+          value: "https://southcentralus.api.cognitive.microsoft.com/customvision/v3.0"
+        - name: Language
+          value: "?language="
+        - name: ComputerVisionAnalizeAddress
+          value: "https://southcentralus.api.cognitive.microsoft.com/vision/v2.0/analyze?visualFeatures=Objects&details=Landmarks&language=en"
+        - name: VotherIdServiceBaseAddres
+          value: "https://idauthvoter.azurewebsites.net/api/auth"
+        - name: BlobServiceGetBlob
+          value: "http://blobapi.tuidprod.svc.cluster.local:6379/api/blob/getBlob"
+        - name: GeoApiServiceBaseAddress
+          value: "http://geoapi.tuidprod.svc.cluster.local:6379/"
+        - name: UserServiceAddOcrData
+          value:  "http://mongoapi.tuidprod.svc.cluster.local:6379/api/mongoUser/addOcrData"
+        - name: UserServiceGetUserDocument
+          value: "http://userapi.tuidprod.svc.cluster.local:6379/api/user/getUserDocument"
+        - name: ComputerVisionRecognizeText
+          value: "https://southcentralus.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Printed"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+  
+
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cryptoapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: cryptoapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cryptoapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cryptoapi
+      
+  template:
+    metadata:
+      labels:
+        app: cryptoapi 
+        layer: core
+    spec:
+      containers:
+      - name: cryptoapi 
+        image: tuidhubprod.azurecr.io/cryptoapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: cryptoapi
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+  
+
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: documentapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: documentapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: documentapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: documentapi
+
+  template:
+    metadata:
+      labels:
+        app: documentapi 
+        layer: business
+        
+    spec:
+      containers:
+      - name: documentapi 
+        image: tuidhubprod.azurecr.io/documentapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: documentapi
+        env:
+        - name : InstrumentationKey
+          value: "907566a5-1133-4d76-8469-90826038678e"
+        - name : UserServiceGet
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/getUser"
+        - name : UserServiceGetUserDocument
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/getUserDocument"
+        - name : UserServiceUpdate
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/updUser"
+        - name : UserServiceGetLnData
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/getUserLnData"
+        - name : UserServiceInsertLog
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/insertLog"
+        - name : UserServiceInsertDoc
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/insertDoc"
+        - name : UserServiceDeleteDoc
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/delete"
+        - name : ComputerVisionComputerVision
+          value : "http://computervisionapi.tuidprod.svc.cluster.local:6379/api/ocr/computerVision"
+        - name : KoalaApiEnrollCmd
+          value : "http://fingerprintsapi.tuidprod.svc.cluster.local:6379/api/fingerprints/enRollcmd"
+        - name : LexisApiDocImageAuthenticate
+          value : "http://lexisapi.tuidprod.svc.cluster.local:6379/api/Ln/docImageAuthenticate"
+        - name : FaceApiServiceBaseAddress
+          value : "http://faceapi.tuidprod.svc.cluster.local:6379/"
+        - name : FaceApiDetectIdoFace
+          value : "http://faceapi.tuidprod.svc.cluster.local:6379/api/faceMb/detectIdoFace"
+        - name : FaceApiDetectStartFaceFlowCmd
+          value : "http://faceapi.tuidprod.svc.cluster.local:6379/api/faceMb/FaceFlowMb"
+        - name : BAAuthIdApi
+          value : "http://authidapi.tuidprod.svc.cluster.local:6379/api/AuthIdAPI/getIdeAuth"
+        - name : BlobServiceGetBlob
+          value : "http://blobapi.tuidprod.svc.cluster.local:6379/api/blob/getBlob"
+        - name : BlobServiceBlob
+          value : "http://blobapi.tuidprod.svc.cluster.local:6379/api/blob"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+  
+
+
+      
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: faceapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: faceapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faceapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: faceapi
+      
+  template:
+    metadata:
+      labels:
+        app: faceapi 
+        layer: core
+        
+    spec:
+      containers:
+      - name: faceapi 
+        image: tuidhubprod.azurecr.io/faceapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: faceapi
+        env:
+        - name: FaceKey
+          value: "dsaaaaaaaaaaaaaaadsbf3395bfe52bf"
+        - name: FaceBaseAddress
+          value: "https://southcentralus.api.cognitive.microsoft.com/face/v1.0"
+        - name: FaceBAPersongroups
+          value: "https://southcentralus.api.cognitive.microsoft.com/face/v1.0/persongroups/"
+        - name: DefaultPersonGroupId
+          value: "6706db56-86cf-4b62-b498-1a9a1b5f9d3c"
+        - name: Training
+          value: "/training"
+        - name: Train
+          value: "/train"
+        - name: Persons
+          value: "/persons/"
+        - name: FaceBADetect
+          value: "https://southcentralus.api.cognitive.microsoft.com/face/v1.0/detect?"                            
+        - name: FaceBAVerify
+          value: "https://southcentralus.api.cognitive.microsoft.com/face/v1.0/verify"
+        - name: FaceBALargepersongroups
+          value: "https://southcentralus.api.cognitive.microsoft.com/face/v1.0/largepersongroups/"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+  
+
+
+      
+---
+
+
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: geoapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: geoapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geoapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geoapi
+      
+  template:
+    metadata:
+      labels:
+        app: geoapi 
+        layer: core
+        
+    spec:
+      containers:
+      - name: geoapi 
+        image: tuidhubprod.azurecr.io/geoapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: geoapi
+        env:
+        - name: BaseAddress
+          value: "https://maps.googleapis.com/maps/api"
+        - name: GoogleMapsKey
+          value: "AIzaSffffffffffsdPXR9-HiCyAKuJMfj8k"
+        - name: GoogleSignature
+          value: "TKLgAOTmMdffffffffggfVmZgzwjd8g="
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+
+      
+---
+
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: userauth
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: userauth
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userauth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userauth
+  template:
+    metadata:
+      labels:
+        app: userauth 
+        layer: entrypoint
+        
+    spec:
+      containers:
+      - name: userauth 
+        image: tuidhubprod.azurecr.io/userauth:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: userauth
+        env:
+        - name: EnterpriseId
+          value: "5bcdff720f66f"
+        - name: Configuration
+          value: "finger_cfg_8"
+        - name: BaseAddress
+          value: "https://13.58.109.129"
+        - name: DefaultConnection
+          value: "te=False;Connection Timeout=30;"
+          
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+
+      
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: lexisapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: lexisapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexisapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lexisapi
+
+  template:
+    metadata:
+      labels:
+        app: lexisapi
+        layer: core
+        
+    spec:
+      containers:
+      - name: lexisapi 
+        image: tuidhubprod.azurecr.io/lexisapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: lexisapi
+        env:
+        - name: LNUser
+          value: "mcortes01"
+        - name: LNPassword
+          value: "Lexis2018"
+        - name: LNEndPoint
+          value: "https://mfa.lexisnexis.com/WsMFA/?ver_=2.13"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notificationapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: notificationapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notificationapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notificationapi
+      
+  template:
+    metadata:
+      labels:
+        app: notificationapi 
+        layer: core
+    spec:
+      containers:
+      - name: notificationapi 
+        image: tuidhubprod.azurecr.io/notificationapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: notificationapi
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+  
+
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reportingapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: reportingapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reportingapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reportingapi
+      
+  template:
+    metadata:
+      labels:
+        app: reportingapi 
+        layer: core
+        
+    spec:
+      containers:
+      - name: reportingapi 
+        image: tuidhubprod.azurecr.io/reportingapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: reportingapi
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+
+
+      
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webendpoint
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webendpoint
+      
+  template:
+    metadata:
+      labels:
+        app: webendpoint
+        layer: entrypoint
+        
+    spec:
+      containers:
+      - name: webendpoint 
+        image: tuidhubprod.azurecr.io/webendpoint:PROD.V.1.7
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+        - name : AdminAuthServiceLogin 
+          value : "http://adminauth.tuidprod.svc.cluster.local:6379/api/Auth/login"
+        - name : AdminAuthServiceRefreshToken 
+          value : "http://adminauth.tuidprod.svc.cluster.local:6379/api/Auth/refreshToken"
+        - name : DocumentServiceGetDocument 
+          value : "http://documentapi.tuidprod.svc.cluster.local:6379/api/document"
+        - name : UserServiceGetUser 
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user"
+        - name : UserServiceUserByCredentials 
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/getUserByCredentials"
+        - name : UserServiceUserByPagination 
+          value : "http://userapi.tuidprod.svc.cluster.local:6379/api/user/getUsersByPagination"
+        - name : "AuthIdAPIBaseAdress"
+          value : "http://authidapi.tuidprod.svc.cluster.local:6379/api/AuthIdAPI"
+        - name : "BlobServiceBaseAddres"
+          value : "http://blobapi.tuidprod.svc.cluster.local:6379/api/blob/updloadImageToApi"
+        - name : "CurpServiceBaseAddres"
+          value : "http://curpapi.tuidprod.svc.cluster.local:6379/api/curp/"
+        - name : "ESignBaseAddress"
+          value : "http://esign-api.tuidprod.svc.cluster.local:6379"
+        - name : "FaceMatchBaseAddress"
+          value : "http://faceapi.tuidprod.svc.cluster.local:6379"
+        - name : CurpMode1
+          value : "bydata"
+        - name : CurpMode2
+          value : "bycurp"
+        - name: webEndpointUrl
+          value: onlyOCR
+          
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webendpoint
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: webendpoint
+
+      
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminauth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminauth
+      
+  template:
+    metadata:
+      labels:
+        app: adminauth 
+        layer: entrypoint
+    spec:
+      containers:
+      - name: adminauth 
+        image: tuidhubprod.azurecr.io/adminauth:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: adminauth
+        env:
+        - name: DefaultConnection
+          value: " Timeout=30;"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+  
+
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminauth
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: adminauth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customvisionapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 5000
+  selector:
+    app: customvisionapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customvisionapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customvisionapi
+      
+  template:
+    metadata:
+      labels:
+        app: customvisionapi 
+        layer: core
+    spec:
+      containers:
+      - name: customvisionapi 
+        image: tuidhubprod.azurecr.io/customvisionapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+          name: customvisionapi
+        env:
+        - name: CustomVisionTrainingKey
+          value: "dd57285e2992czxczcx9ebb345cd39"
+        - name: CustomVisionBaseAddress
+          value: "https://southcentralus.api.cognitive.microsoft.com/customvision/v3.0"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+
+
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fingerprintsapi
+spec:
+  ports:
+  - port: 6379
+    targetPort: 80
+  selector:
+    app: fingerprintsapi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fingerprintsapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fingerprintsapi
+  template:
+    metadata:
+      labels:
+        app: fingerprintsapi 
+        layer: core
+        
+    spec:
+      containers:
+      - name: fingerprintsapi 
+        image: tuidhubprod.azurecr.io/fingerprintsapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: fingerprintsapi
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curpapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: curpapi
+  template:
+    metadata:
+      labels:
+        app: curpapi 
+        layer: core
+        
+    spec:
+      containers:
+      - name: curpapi 
+        image: tuidhubprod.azurecr.io/curpapi:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: curpapi
+        env:
+        - name : baseAddress 
+          value : "http://tuidfipro.centralus.cloudapp.azure.com/api/verify/"
+        - name : mode1
+          value : "bydata"
+        - name : mode2
+          value : "bycurp"
+        - name : "IdAuthDb"
+          value : ";"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: esign-api
+spec:
+  ports:
+  - port: 6379
+    targetPort: 3000
+  selector:
+    app: esign-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esign-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: esign-api
+
+  template:
+    metadata:
+      labels:
+        app: esign-api
+        layer: core  
+    spec:
+      containers:
+      - name: esign-api 
+        image: tuidhubprod.azurecr.io/esign-api:PROD.V.1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: esign-api
+        env:
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "120Mi"
+            cpu: "100m"
+          limits:
+            memory: "490Mi"
+            cpu: "200m"
+      imagePullSecrets:
+        - name: tuidcred

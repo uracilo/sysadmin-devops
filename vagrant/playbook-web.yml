@@ -1,0 +1,39 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Instalar Servidor WEB (Apache)
+      apt: 
+        name: "{{item}}"
+        state: present  
+        update_cache: yes
+      with_items:
+            - apache2
+            - libapache2-mod-php7.0
+            
+    - name: Instalar PHP
+      apt: 
+        name: "{{item}}"
+        state: present  
+        update_cache: yes
+      with_items:
+            - php7.0
+            - php7.0-cli
+            - php7.0-mcrypt
+            - php7.0-intl
+            - php7.0-mysql
+            - php7.0-curl
+            - php7.0-gd
+            - php7.0-soap
+            - php7.0-xml
+            - php7.0-zip
+            - php7.0-readline
+            - php7.0-opcache
+            - php7.0-json
+            - php7.0-gd
+            - mariadb-client
+
+    - name: Asegurarse de que el servidor web esta corriendo
+      service:
+        name: apache2
+        state: started   

@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata: 
+  name: my-app-service
+spec: 
+  type: NodePort
+  ports: 
+  - targetPort: 80 
+    port: 80 
+    nodePort: 30008
+  selector: 
+    app: my-app
+    type: front-end
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: my-add-service2
+spec: 
+  type: ClusterIP
+  ports: 
+    - targetPort: 80 
+      port: 80  
+  selector:
+    app: my-app
+    type: front-end
+---
+apiVerion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  type: LoadBalancer
+  ports: 
+    - targetPort: 80 
+      port: 80 
+      NodePort: 30008
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 8080
+      port: 8080
+      nodePort: 30080
+  selector:
+    name: simple-webapp

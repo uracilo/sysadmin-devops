@@ -1,0 +1,8 @@
+#default resouces by containser 
+# .5 cpu 500 mi
+# 256 mibibytes 256 MB ram aprox
+
+# Default limit by container
+# 1 cpu 1000 mi 
+# 512 Mb 
+# un contenedor puede exceder el limite de memoria asignado, pero se reinicia y por cpu se limita el container  a trabajar a su limite.
