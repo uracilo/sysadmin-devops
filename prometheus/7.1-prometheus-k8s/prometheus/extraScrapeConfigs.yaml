@@ -1,4 +1,0 @@
-- job_name: 'app'
-  scrape_interval: 5s
-  static_configs:
-    - targets: ["app:8081"]
