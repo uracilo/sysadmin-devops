@@ -19,4 +19,34 @@
 # kubectl rollout status deployment/myapp-deployment
 # kubectl rolltout history deployment/myapp-deployment
 # kubectl rolltout undo deployment/myapp-deployment
-
+# all env-file is declare like --from-env-file= 
+# kubectl create configmap \
+#  app-config --from-literal=APP_COLOR=blue \
+#             --from-literal=APP_MOD=prod
+#kubectl create configmap \
+# app-config --from-file=app_config.properties
+#kubectl create secret generic \ 
+#  app-secret --from-literal=DB_HOST=mysql \
+#             --from-literal=DB_USER=root \ 
+#	      --from-literal=DB_PASSWORD=passwrd	
+# k create secret generic \
+#  app-secret --from-file=./secretvalues
+#DB_HOST: mysql
+#DB_USER: root 
+#DB_PASSWORD: passwd
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#

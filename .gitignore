@@ -1,1 +1,7 @@
 **/moodle
+config
+credentials
+*.env
+*.pem
+*.pfx
+*.key

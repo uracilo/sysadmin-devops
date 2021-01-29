@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  ggi-be:
+    container_name: ggi-be 
+    #image: node:12.18.3-alpine3.10
+    build: .
+    #volumes: 
+    #  - $PWD:/app
+    env_file:
+      - ./ggi-be.env
+    ports:
+      - "3040:3040"
+#  redis:
+#    container_name: redis
+#    image: redis 
+#    ports:
+ #     - "6379:6370"
+  
+
