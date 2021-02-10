@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-nginx-ingress-controller
+  namespace: gitlab-managed-apps
+data: 
+  use-forwarded-headers: "false"
+  server-tokens: "false"
+  X-Frame-Options: "Deny"
+  X-Xss-Protection: "1; mode=block"
+  X-Content-Type-Options: "nosniff"

@@ -34,19 +34,30 @@
 #DB_HOST: mysql
 #DB_USER: root 
 #DB_PASSWORD: passwd
+#Mantain a node
+# first drain and than get online
+#kubectl drain node01
+# kubectl uncordon node01
+# kubectl drain node01 --ignore-daemonsets
+# kubectl get all --all-namespaces -o yaml > all-deploy-services.yaml
+# backup etcd
+# ETCDCTL_API=3 etcdtl \
+# snapshot save snapshot.db
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+# ETCDCTL_API=3 etcdctl \
+# snapshot status snapshot.db
+# Restore
+# service kube-apiserver stop
+# ETCDCTL_API=3 etcdctl \
+# snapshot restore snapshot.db \
+# --data-dir /var/lib/etcd-from-backup
+# kubectl get roles
+# kubectl get rolebindings
+# kubectl describe role roleName
+# kubectl describe rolebinding rolebindingName
+#Check acccess
+# kubectl auth can-i create deployments
+# kubectl auth can-i delete pods
+# kubectl auth can-i create services
+# kubectl auth can-i create deployments --as dev-user
+# kubectl auth can-i create pods --as dev-user

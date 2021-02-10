@@ -1,0 +1,23 @@
+# update cluster k8s , versions and update software
+# 1 .- update master node using depens drain or only update
+# 2.- update node by node using drain node and then use uncorde node
+# 3.- for cloud providers add new node with new version and dele old node
+# 4.- kubectl and api it could be the same version , node and kubectl, controller manager, could be minor version
+# update version 1 to 1 
+# Kubeadm upgrade 
+# kubectl drain node1
+# apt-get update -y kubeadm=1.12.0-00
+# apt-get upgrade -y kubelet=1.12.0-00
+# kubeadm upgrade node config --kubelet-version v1.12.0
+# systemctl restart kubelet
+# kubectl uncordon node01
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#

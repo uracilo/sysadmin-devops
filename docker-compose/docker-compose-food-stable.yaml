@@ -1,0 +1,29 @@
+version: '3'
+services:
+  food-stable:
+    image: food-delivery:v0.1
+    container_name: food-stable
+    ports:
+      - "8080:80"
+    restart: always
+    networks:
+      stable:
+        ipv4_address: 172.24.0.2
+  proxy_ssl:
+    image: nginx:1.19.2-alpine
+    container_name: proxy_ssl
+    ports:
+      - "80:80"
+    volumes:
+      - ./default-food.conf:/etc/nginx/conf.d/default.conf
+    restart: always
+    networks:
+      - stable
+networks: 
+  stable:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.24.0.0/24
+ 

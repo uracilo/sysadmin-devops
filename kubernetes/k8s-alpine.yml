@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpine
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpine
+  template:
+    metadata:
+      labels:
+        app: alpine
+        layer: alpine
+        type: backend
+    spec:
+      containers:
+      - name: alpine
+        image: registry.gitlab.com/grupojaque/foodcentral/food-central-backend:backend
+        #992852023954.dkr.ecr.us-east-1.amazonaws.com/arriendos/prod:arriendosweb.fe.v0.1
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "200m"
+          limits:
+            memory: "300Mi"
+            cpu: "300m"
+        volumeMounts: 
+          - name: old  
+            mountPath: "/app/old"
+          - name: new
+            mountPath: "/app/new" 
+      imagePullSecrets:
+        - name: foodcred-back
+      volumes:
+      - name: old 
+        persistentVolumeClaim:
+          claimName: food-central-logs
+      - name: new
+        persistentVolumeClaim: 
+          claimName: nfs-pvc 
